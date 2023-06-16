@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const User = require("./models/User");
 const Post = require("./models/Post");
 const Mission = require("./models/Mission");
+const Site = require("./models/Site");
+
 const bcrypt = require("bcryptjs");
 const app = express();
 const jwt = require("jsonwebtoken");
@@ -198,7 +200,7 @@ app.put("/updateMission", uploadMiddleware.single("file"), async (req, res) => {
     const { id, alt, speed, name, waypoints, created_at, updated_at } =
       req.body;
     const missionDoc = await Mission.findById(id);
-    if(!missionDoc) return res.json("No mission with this mission id.");
+    if (!missionDoc) return res.json("No mission with this mission id.");
     await missionDoc.update({
       alt,
       speed,
@@ -218,14 +220,36 @@ app.put("/deleteMission", uploadMiddleware.single("file"), async (req, res) => {
   const { token } = req.cookies;
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
-    const { id } =
-      req.body;
+    const { id } = req.body;
     const missionDoc = await Mission.findById(id);
-    if(!missionDoc) return res.json("No mission with this mission id.");
+    if (!missionDoc) return res.json("No mission with this mission id.");
 
     await missionDoc.remove({});
 
     return res.json({ msg: "Data Deleted Successfully" });
+  });
+});
+
+// Create Site
+app.post("/createSite", uploadMiddleware.single("file"), async (req, res) => {
+  const { site_name, position } = req.body;
+  // console.log(req.body);
+
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    try {
+      const site = await Site.create({
+        site_name,
+        position,
+        author: info.id,
+      });
+      res.json({ msg: "Site data submitted successfully", data: site });
+      console.log(site);
+    } catch (e) {
+      console.log(e);
+      res.status(400).json(e);
+    }
   });
 });
 
