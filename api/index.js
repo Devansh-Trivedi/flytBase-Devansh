@@ -24,8 +24,7 @@ app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
 app.use(express.json());
 app.use(cookieParser());
 app.use("/uploads", express.static(__dirname + "/uploads"));
-// Password: IMdKNnZaHBwsrQov
-// Username: tridevansh160601
+
 
 mongoose.set("strictQuery", false);
 // mongoose.connect(process.env.MONGO_URI, () => {
@@ -43,7 +42,6 @@ mongoose.connect(
   }
 );
 
-// mongoose.connect('mongodb+srv://tridevansh160601:IMdKNnZaHBwsrQov@cluster0.w3cl69x.mongodb.net/?retryWrites=true&w=majority');
 
 app.post("/register", async (req, res) => {
   const { username, password } = req.body;
