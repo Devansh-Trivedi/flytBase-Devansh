@@ -14,6 +14,6 @@ const DroneSchema = new Schema({
   author: { type: Schema.Types.ObjectId, ref: "User" },
 });
 
-const CategoriesModel = model("Categories", CategoriesSchema);
+const DroneModel = model("Drone", DroneSchema);
 
-module.exports = CategoriesModel;
+module.exports = DroneModel;

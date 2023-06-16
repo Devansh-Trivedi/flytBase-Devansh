@@ -6,6 +6,7 @@ const Post = require("./models/Post");
 const Mission = require("./models/Mission");
 const Site = require("./models/Site");
 const Categories = require("./models/Categories");
+const Drone = require("./models/Drone");
 
 const bcrypt = require("bcryptjs");
 const app = express();
@@ -347,18 +348,114 @@ app.put(
 );
 
 // Delete Categories
-app.put("/deleteCategory", uploadMiddleware.single("file"), async (req, res) => {
+app.put(
+  "/deleteCategory",
+  uploadMiddleware.single("file"),
+  async (req, res) => {
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+      if (err) throw err;
+      const { id } = req.body;
+      const categoryDoc = await Categories.findById(id);
+      if (!categoryDoc) return res.json("No Category with this site id.");
+
+      await categoryDoc.remove({});
+
+      return res.json({ msg: "Category data Deleted Successfully" });
+    });
+  }
+);
+
+// Create Drone
+app.post("/createDrone", uploadMiddleware.single("file"), async (req, res) => {
+  const {
+    drone_id,
+    created_at,
+    deleted_at,
+    deleted_on,
+    drone_type,
+    make_name,
+    name,
+    updated_at,
+  } = req.body;
+  // console.log(req.body);
+
   const { token } = req.cookies;
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
-    const { id } = req.body;
-    const categoryDoc = await Categories.findById(id);
-    if (!categoryDoc) return res.json("No Category with this site id.");
-
-    await categoryDoc.remove({});
-
-    return res.json({ msg: "Category data Deleted Successfully" });
+    try {
+      const drone = await Drone.create({
+        drone_id,
+        created_at,
+        deleted_at,
+        deleted_on,
+        drone_type,
+        make_name,
+        name,
+        updated_at,
+        author: info.id,
+      });
+      res.json({
+        msg: "Drone data submitted successfully",
+        data: drone,
+      });
+      console.log(drone);
+    } catch (e) {
+      console.log(e);
+      res.status(400).json(e);
+    }
   });
 });
+
+// Updating Drone
+app.put("/updateDrone", uploadMiddleware.single("file"), async (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const {
+      id,
+      drone_id,
+      created_at,
+      deleted_at,
+      deleted_on,
+      drone_type,
+      make_name,
+      name,
+      updated_at,
+    } = req.body;
+    const droneDoc = await Drone.findById(id);
+    if (!droneDoc) return res.json("No Drone with this drone id.");
+    await droneDoc.update({
+      id,
+      name,
+      color,
+      tag_name,
+      created_at,
+      updated_at,
+      author: info.id,
+    });
+
+    res.json({ msg: "Drone data Updated Successfully", date: req.body });
+  });
+});
+
+// Delete Drone
+app.put(
+  "/deleteDrone",
+  uploadMiddleware.single("file"),
+  async (req, res) => {
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+      if (err) throw err;
+      const { id } = req.body;
+      const droneDoc = await Drone.findById(id);
+      if (!droneDoc) return res.json("No Drone with this drone id.");
+
+      await droneDoc.remove({});
+
+      return res.json({ msg: "Drone data Deleted Successfully" });
+    });
+  }
+);
 
 app.listen(4000);
