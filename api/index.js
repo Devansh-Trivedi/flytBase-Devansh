@@ -5,6 +5,7 @@ const User = require("./models/User");
 const Post = require("./models/Post");
 const Mission = require("./models/Mission");
 const Site = require("./models/Site");
+const Categories = require("./models/Categories");
 
 const bcrypt = require("bcryptjs");
 const app = express();
@@ -250,6 +251,113 @@ app.post("/createSite", uploadMiddleware.single("file"), async (req, res) => {
       console.log(e);
       res.status(400).json(e);
     }
+  });
+});
+
+// Updating Site:
+app.put("/updateSite", uploadMiddleware.single("file"), async (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { id, site_name, position } = req.body;
+    const siteDoc = await Site.findById(id);
+    if (!siteDoc) return res.json("No Site with this site id.");
+    await siteDoc.update({
+      site_name,
+      position,
+      author: info.id,
+    });
+
+    res.json({ msg: "Site data Updated Successfully", date: req.body });
+  });
+});
+
+// Delete Site:
+app.put("/deleteSite", uploadMiddleware.single("file"), async (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { id } = req.body;
+    const siteDoc = await Site.findById(id);
+    if (!siteDoc) return res.json("No Site with this site id.");
+
+    await siteDoc.remove({});
+
+    return res.json({ msg: "Site data Deleted Successfully" });
+  });
+});
+
+// Create Categories
+app.post(
+  "/createCategory",
+  uploadMiddleware.single("file"),
+  async (req, res) => {
+    const { name, color, tag_name, created_at, updated_at } = req.body;
+    // console.log(req.body);
+
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+      if (err) throw err;
+      try {
+        const category = await Site.create({
+          name,
+          color,
+          tag_name,
+          created_at,
+          updated_at,
+          author: info.id,
+        });
+        res.json({
+          msg: "Category data submitted successfully",
+          data: category,
+        });
+        console.log(category);
+      } catch (e) {
+        console.log(e);
+        res.status(400).json(e);
+      }
+    });
+  }
+);
+
+// Updating Categories
+app.put(
+  "/updateCategory",
+  uploadMiddleware.single("file"),
+  async (req, res) => {
+    const { token } = req.cookies;
+    jwt.verify(token, secret, {}, async (err, info) => {
+      if (err) throw err;
+      const { id, name, color, tag_name, created_at, updated_at } = req.body;
+      const categoryDoc = await Site.findById(id);
+      if (!categoryDoc) return res.json("No Category with this site id.");
+      await categoryDoc.update({
+        id,
+        name,
+        color,
+        tag_name,
+        created_at,
+        updated_at,
+        author: info.id,
+      });
+
+      res.json({ msg: "Category data Updated Successfully", date: req.body });
+    });
+  }
+);
+
+// Delete Categories
+app.put("/deleteCategory", uploadMiddleware.single("file"), async (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { id } = req.body;
+    const categoryDoc = await Site.findById(id);
+    if (!categoryDoc) return res.json("No Category with this site id.");
+
+    await siteDoc.remove({});
+
+    return res.json({ msg: "Category data Deleted Successfully" });
   });
 });
 
