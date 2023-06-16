@@ -371,7 +371,7 @@ app.post("/createDrone", uploadMiddleware.single("file"), async (req, res) => {
   const {
     drone_id,
     created_at,
-    deleted_at,
+    deleted_by,
     deleted_on,
     drone_type,
     make_name,
@@ -387,7 +387,7 @@ app.post("/createDrone", uploadMiddleware.single("file"), async (req, res) => {
       const drone = await Drone.create({
         drone_id,
         created_at,
-        deleted_at,
+        deleted_by,
         deleted_on,
         drone_type,
         make_name,
@@ -416,7 +416,7 @@ app.put("/updateDrone", uploadMiddleware.single("file"), async (req, res) => {
       id,
       drone_id,
       created_at,
-      deleted_at,
+      deleted_by,
       deleted_on,
       drone_type,
       make_name,
@@ -427,10 +427,13 @@ app.put("/updateDrone", uploadMiddleware.single("file"), async (req, res) => {
     if (!droneDoc) return res.json("No Drone with this drone id.");
     await droneDoc.update({
       id,
-      name,
-      color,
-      tag_name,
+      drone_id,
       created_at,
+      deleted_by,
+      deleted_on,
+      drone_type,
+      make_name,
+      name,
       updated_at,
       author: info.id,
     });
@@ -440,22 +443,18 @@ app.put("/updateDrone", uploadMiddleware.single("file"), async (req, res) => {
 });
 
 // Delete Drone
-app.put(
-  "/deleteDrone",
-  uploadMiddleware.single("file"),
-  async (req, res) => {
-    const { token } = req.cookies;
-    jwt.verify(token, secret, {}, async (err, info) => {
-      if (err) throw err;
-      const { id } = req.body;
-      const droneDoc = await Drone.findById(id);
-      if (!droneDoc) return res.json("No Drone with this drone id.");
+app.put("/deleteDrone", uploadMiddleware.single("file"), async (req, res) => {
+  const { token } = req.cookies;
+  jwt.verify(token, secret, {}, async (err, info) => {
+    if (err) throw err;
+    const { id } = req.body;
+    const droneDoc = await Drone.findById(id);
+    if (!droneDoc) return res.json("No Drone with this drone id.");
 
-      await droneDoc.remove({});
+    await droneDoc.remove({});
 
-      return res.json({ msg: "Drone data Deleted Successfully" });
-    });
-  }
-);
+    return res.json({ msg: "Drone data Deleted Successfully" });
+  });
+});
 
 app.listen(4000);
