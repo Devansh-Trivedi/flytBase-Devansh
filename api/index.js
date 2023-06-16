@@ -299,7 +299,7 @@ app.post(
     jwt.verify(token, secret, {}, async (err, info) => {
       if (err) throw err;
       try {
-        const category = await Site.create({
+        const category = await Categories.create({
           name,
           color,
           tag_name,
@@ -329,7 +329,7 @@ app.put(
     jwt.verify(token, secret, {}, async (err, info) => {
       if (err) throw err;
       const { id, name, color, tag_name, created_at, updated_at } = req.body;
-      const categoryDoc = await Site.findById(id);
+      const categoryDoc = await Categories.findById(id);
       if (!categoryDoc) return res.json("No Category with this site id.");
       await categoryDoc.update({
         id,
@@ -352,10 +352,10 @@ app.put("/deleteCategory", uploadMiddleware.single("file"), async (req, res) => 
   jwt.verify(token, secret, {}, async (err, info) => {
     if (err) throw err;
     const { id } = req.body;
-    const categoryDoc = await Site.findById(id);
+    const categoryDoc = await Categories.findById(id);
     if (!categoryDoc) return res.json("No Category with this site id.");
 
-    await siteDoc.remove({});
+    await categoryDoc.remove({});
 
     return res.json({ msg: "Category data Deleted Successfully" });
   });
